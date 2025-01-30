@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"net"
 )
 
@@ -17,14 +16,7 @@ func main() {
 
 	reader := bufio.NewReader(conn)
 
-	for {
-		// get line, output
-		line, _ := reader.ReadString('\n')
-		fmt.Print(string(line))
-		if line == "\r\n" || line == "\n" {
-			break
-		}
-	}
+	parse(reader)
 
 	response := "HTTP/1.1 200 OK\r\n\r\nhello world"
 	conn.Write([]byte(response))
