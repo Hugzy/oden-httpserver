@@ -2,22 +2,48 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"net"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
-	ln, _ := net.Listen("tcp", ":8000")
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
-	defer ln.Close()
+	go func() {
+		sig := <-sigs
+		fmt.Println()
+		fmt.Println(sig)
+		fmt.Println("goobye")
+		os.Exit(0)
+	}()
 
-	conn, _ := ln.Accept()
+	fmt.Println("Starting webserver")
+	fmt.Println("Webserver listening on port :8000")
 
-	defer conn.Close()
+	for {
+		ln, _ := net.Listen("tcp", ":8000")
 
-	reader := bufio.NewReader(conn)
+		conn, _ := ln.Accept()
 
-	parse(reader)
+		reader := bufio.NewReader(conn)
 
-	response := "HTTP/1.1 200 OK\r\n\r\nhello world"
-	conn.Write([]byte(response))
+		request, err := parse(reader)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		fmt.Println(request)
+
+		response := buildResponse(request)
+
+		conn.Write([]byte(response))
+
+		ln.Close()
+		conn.Close()
+	}
 }
