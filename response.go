@@ -6,17 +6,18 @@ import (
 	"strings"
 )
 
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
-
 func buildResponse(r *Request) string {
 	var b strings.Builder
 	fmt.Println(r.version)
-	file, err := os.ReadFile("./main.html")
-	check(err)
+	filename := fmt.Sprintf(".%v", r.url)
+	file, err := os.ReadFile(filename)
+	if err != nil {
+		file, err = os.ReadFile("./notfound.html")
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	b.WriteString("HTTP/1.1 ")
 	b.WriteString("200 OK")
 	b.WriteString("\r\n")

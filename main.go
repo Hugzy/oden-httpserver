@@ -37,7 +37,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		fmt.Println(request)
+		fmt.Println("request", request)
 
 		response := buildResponse(request)
 
